@@ -40,3 +40,35 @@
               0)
   (test-equal (flat-count (term X) (term ([X X X] [O O O] [X _ X _] [O O O O X])))
               6))
+
+(define move
+  (reduction-relation
+   tic-tac-toe
+   #:domain board
+   (--> (any_1
+         ...
+         [any_2 ... _ any_3 ...]
+         any_4
+         ...)
+        (any_1
+         ...
+         [any_2 ... X any_3 ...]
+         any_4
+         ...)
+        (side-condition (= (flat-count (term X) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))
+                           (flat-count (term O) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))))
+        player-x)
+   (--> (any_1
+         ...
+         [any_2 ... _ any_3 ...]
+         any_4
+         ...)
+        (any_1
+         ...
+         [any_2 ... O any_3 ...]
+         any_4
+         ...)
+        (side-condition (> (flat-count (term X) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))
+                           (flat-count (term O) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))))
+        player-o)))
+                      

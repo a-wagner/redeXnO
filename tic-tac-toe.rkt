@@ -23,7 +23,7 @@
 ; The expressions are flattened, so they may be individual items,
 ; lists, lists of lists, etc.
 (define (flat-count item . exprs)
-  (count (curry equal? item) (flatten (append exprs))))
+  (count (curry equal? item) (flatten exprs)))
 
 (module+ test
   (test-equal (flat-count "absolutely nuffin")

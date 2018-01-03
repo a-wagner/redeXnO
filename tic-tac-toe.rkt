@@ -75,4 +75,47 @@
         (side-condition (> (flat-count (term X) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))
                            (flat-count (term O) (term (any_1 ...)) (term (any_2 ...)) (term (any_3 ...)) (term (any_4 ...)))))
         player-o)))
+
+; consumes a player and produces a board
+; in which that player wins 3 across in the
+; top row
+(define (horiz-win player)
+  (term ([,player ,player ,player]
+         [_ _ _]
+         [_ _ _])))
+
+; consumes a player and produces a board
+; in which that player wins 3 down in the
+; leftmost column
+(define (vert-win player)
+  (term ([,player _ _]
+         [,player _ _]
+         [,player _ _])))
+
+; consumes a player and produces a board
+; in which that player wins 3 diagonal from
+; top left to bottom right
+(define (diag-lr-win player)
+  (term ([,player _ _]
+         [_ ,player _]
+         [_ _ ,player])))
+
+; consumes a player and produces a board
+; in which that player wins 3 diagonal from
+; top right to bottom left
+(define (diag-rl-win player)
+  (term ([_ _ ,player]
+         [_ ,player _]
+         [,player _ _])))
+
+(module+ test
+  (test-equal (redex-match? tic-tac-toe board (horiz-win (term X)))
+              #t)
+  (test-equal (redex-match? tic-tac-toe board (vert-win (term O)))
+              #t)
+  (test-equal (redex-match? tic-tac-toe board (diag-lr-win (term O)))
+              #t)
+  (test-equal (redex-match? tic-tac-toe board (diag-rl-win (term X)))
+              #t))
+
                       

@@ -18,6 +18,10 @@
    [_ _ _]
    [_ _ _]))
 
+(module+ test
+    (test-equal (redex-match? tic-tac-toe board (term initial-board))
+                #t))
+
 ; flat-count consumes an item and some variable number of expressions
 ; and produces a number equal to the count of item in those expressions.
 ; The expressions are flattened, so they may be individual items,

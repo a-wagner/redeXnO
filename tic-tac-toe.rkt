@@ -201,5 +201,14 @@
   (test-equal (valid? (term ([X _ _] [O _ _] [_ _ O])))
               #f))
 
+(define winning-boards
+  (apply-reduction-relation* move
+                             (term initial-board)
+                             #:cache-all? #t
+                             #:stop-when (curry win?)))
+
+(module+ test
+  (test-equal (andmap (curry (and win? valid?)) winning-boards)
+              #t))
   
                       

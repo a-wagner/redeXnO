@@ -182,5 +182,24 @@
 
 (define (win? board)
   (or (x-win? board) (o-win? board)))
+
+; consumes a board and produces #t iff the number
+; of Xs on the board is exactly equal to the number
+; of Os on the board, or exactly one greater
+(define (valid? board)
+  (let ([x-count (flat-count (term X) board)]
+        [o-count (flat-count (term O) board)])
+    (or (= x-count o-count) (= x-count (+ o-count 1)))))
+
+(module+ test
+  (test-equal (valid? (term initial-board))
+              #t)
+  (test-equal (valid? (term ([X _ _] [_ _ _] [_ _ _])))
+              #t)
+  (test-equal (valid? (term ([O _ _] [_ _ _] [_ _ _])))
+              #f)
+  (test-equal (valid? (term ([X _ _] [O _ _] [_ _ O])))
+              #f))
+
   
                       

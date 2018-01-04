@@ -208,7 +208,8 @@
                              #:stop-when (curry win?)))
 
 (module+ test
-  (test-equal (andmap (curry (and win? valid?)) winning-boards)
+  (test-equal (andmap (lambda (board) (and (valid? board) (win? board)))
+                      winning-boards)
               #t))
   
                       

@@ -2,7 +2,8 @@
 (require redex)
 
 (define-language tic-tac-toe
-  [position ::= _ X O]
+  [player ::= X O]
+  [position ::= _ player]
   [board ::= ([position ...] ...)])
 
 (module+ test

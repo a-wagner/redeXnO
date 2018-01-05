@@ -231,7 +231,7 @@
   (apply-reduction-relation* move
                              (term initial-board)
                              #:cache-all? #t
-                             #:stop-when (curry win?)))
+                             #:stop-when (lambda (board) (win? board))))
 
 (module+ test
   (test-equal (andmap (lambda (board) (and (valid? board) (win? board)))

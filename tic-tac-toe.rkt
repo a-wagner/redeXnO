@@ -119,70 +119,95 @@
   (test-equal (redex-match? tic-tac-toe board (diag-rl-win (term X)))
               #t))
 
-(define (x-win? board)
-  (or (redex-match? tic-tac-toe (any_1
-                                 ...
-                                 [X X X]
-                                 any_2
-                                 ...)
-                    board)
-      (redex-match? tic-tac-toe ([any_1 ..._1 X any_2 ..._2]
-                                 [any_3 ..._1 X any_4 ..._2]
-                                 [any_5 ..._1 X any_6 ..._2])
-                    board)
-      (redex-match? tic-tac-toe ([X any_1 any_2]
-                                 [any_3 X any_4]
-                                 [any_5 any_6 X])
-                    board)
-      (redex-match? tic-tac-toe ([any_1 any_2 X]
-                                 [any_3 X any_4]
-                                 [X any_5 any_6])
-                    board)))
-
-(define (o-win? board)
-  (or (redex-match? tic-tac-toe (any_1
-                                 ...
-                                 [O O O]
-                                 any_2
-                                 ...)
-                    board)
-      (redex-match? tic-tac-toe ([any_1 ..._1 O any_2 ..._2]
-                                 [any_3 ..._1 O any_4 ..._2]
-                                 [any_5 ..._1 O any_6 ..._2])
-                    board)
-      (redex-match? tic-tac-toe ([O any_1 any_2]
-                                 [any_3 O any_4]
-                                 [any_5 any_6 O])
-                    board)
-      (redex-match? tic-tac-toe ([any_1 any_2 O]
-                                 [any_3 O any_4]
-                                 [O any_5 any_6])
-                    board)))
+; consumes either
+; - a board and produces #t iff some player has won on that board
+; - a board and a player term and produces #t iff the specified
+; player has won on that board
+(define win?
+  (case-lambda
+    [(board) (or (redex-match? tic-tac-toe (any_1
+                                            ...
+                                            [player_1 player_1 player_1]
+                                            any_2
+                                            ...)
+                               board)
+                 (redex-match? tic-tac-toe ([any_1 ..._1 player_1 any_2 ..._2]
+                                            [any_3 ..._1 player_1 any_4 ..._2]
+                                            [any_5 ..._1 player_1 any_6 ..._2])
+                               board)
+                 (redex-match? tic-tac-toe ([player_1 any_1 any_2]
+                                            [any_3 player_1 any_4]
+                                            [any_5 any_6 player_1])
+                               board)
+                 (redex-match? tic-tac-toe ([any_1 any_2 player_1]
+                                            [any_3 player_1 any_4]
+                                            [player_1 any_5 any_6])
+                               board))]
+    [(board player) (or (redex-match? tic-tac-toe
+                                      (side-condition (any_1
+                                                       ...
+                                                       [(name winner player_1) player_1 player_1]
+                                                       any_2
+                                                       ...)
+                                                      (equal? (term winner) player))
+                                      board)
+                        (redex-match? tic-tac-toe
+                                      (side-condition ([any_1 ..._1 (name winner player_1) any_2 ..._2]
+                                                       [any_3 ..._1 player_1 any_4 ..._2]
+                                                       [any_5 ..._1 player_1 any_6 ..._2])
+                                                      (equal? (term winner) player))
+                                      board)
+                        (redex-match? tic-tac-toe
+                                      (side-condition ([(name winner player_1) any_1 any_2]
+                                                       [any_3 player_1 any_4]
+                                                       [any_5 any_6 player_1])
+                                                      (equal? (term winner) player))
+                                      board)
+                        (redex-match? tic-tac-toe
+                                      (side-condition ([any_1 any_2 (name winner player_1)]
+                                                       [any_3 player_1 any_4]
+                                                       [player_1 any_5 any_6])
+                                                      (equal? (term winner) player))
+                                      board))]))
 
 (module+ test
-  (test-equal (x-win? (term initial-board))
+  (test-equal (win? (term initial-board))
               #f)
-  (test-equal (x-win? (horiz-win (term X)))
+  (test-equal (win? (horiz-win (term X)))
               #t)
-  (test-equal (x-win? (vert-win (term X)))
+  (test-equal (win? (vert-win (term X)))
               #t)
-  (test-equal (x-win? (diag-lr-win (term X)))
+  (test-equal (win? (diag-lr-win (term X)))
               #t)
-  (test-equal (x-win? (diag-rl-win (term X)))
+  (test-equal (win? (diag-rl-win (term X)))
               #t)
-  (test-equal (o-win? (term initial-board))
+  (test-equal (win? (horiz-win (term X)) (term X))
+              #t)
+  (test-equal (win? (vert-win (term X)) (term X))
+              #t)
+  (test-equal (win? (diag-lr-win (term X)) (term X))
+              #t)
+  (test-equal (win? (diag-rl-win (term X)) (term X))
+              #t)
+  (test-equal (win? (horiz-win (term X)) (term O))
               #f)
-  (test-equal (o-win? (horiz-win (term O)))
+  (test-equal (win? (vert-win (term X)) (term O))
+              #f)
+  (test-equal (win? (diag-lr-win (term X)) (term O))
+              #f)
+  (test-equal (win? (diag-rl-win (term X)) (term O))
+              #f)
+  (test-equal (win? (term initial-board))
+              #f)
+  (test-equal (win? (horiz-win (term O)))
               #t)
-  (test-equal (o-win? (vert-win (term O)))
+  (test-equal (win? (vert-win (term O)))
               #t)
-  (test-equal (o-win? (diag-lr-win (term O)))
+  (test-equal (win? (diag-lr-win (term O)))
               #t)
-  (test-equal (o-win? (diag-rl-win (term O)))
+  (test-equal (win? (diag-rl-win (term O)))
               #t))
 
-(define (win? board)
-  (or (x-win? board) (o-win? board)))
 
 ; consumes a board and produces #t iff the number
 ; of Xs on the board is exactly equal to the number

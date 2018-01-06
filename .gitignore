@@ -1,2 +1,6 @@
 # racket backups
 *.rkt~
+
+#drracket
+*.zo
+*.dep

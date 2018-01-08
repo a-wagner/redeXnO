@@ -2,7 +2,7 @@
 
 (require redex "spec.rkt")
 
-(provide win? valid?)
+(provide win? valid? isomorphic?)
 
 ; consumes either
 ; - a board and produces #t iff some player has won on that board
@@ -62,3 +62,37 @@
   (let ([x-count (flat-count (term X) board)]
         [o-count (flat-count (term O) board)])
     (or (= x-count o-count) (= x-count (+ o-count 1)))))
+
+; consumes a 3x3 board and produces a 3x3 board which is
+; rotated once counter-clockwise
+(define rotate
+  (reduction-relation tic-tac-toe
+                      (--> ([position_1 position_2 position_3]
+                            [position_4 position_5 position_6]
+                            [position_7 position_8 position_9])
+                           ([position_7 position_4 position_1]
+                            [position_8 position_5 position_2]
+                            [position_9 position_6 position_3]))))
+
+; consumes a board and produces a list of all unique rotations of the board.
+; including the initial board.
+; note that this depends on redex's implementation of -->*, which has a few
+; interesting side-effects
+; note also that this depends on the rotate reduction relation, so is
+; guaranteed to produce non-empty lists only on 3x3 boards
+; 1. boards with fewer than 4 unique rotations (e.g. the empty/inital board)
+; will produce a list less than length 4. Again, these are *unique* rotations
+; 2. because this relies on redex's cycle detection to terminate the proc,
+; the initial-board appears last in the list rather than first
+(define (rotations board)
+  (apply-reduction-relation* rotate
+                             board
+                             #:all? #t))
+
+; consumes two 3x3 boards and returns #t iff the one board is equal to
+; or a rotation of the other
+; note that this is only guaranteed to work on 3x3 boards
+(define (isomorphic? board1 board2)
+  (ormap ((curry equal?) board1) (rotations board2)))
+
+                         

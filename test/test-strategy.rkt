@@ -6,4 +6,8 @@
                       winning-boards)
               #t)
 
+(test-equal (andmap (lambda (board) (and (valid? board) (win? board)))
+                      unique-winning-boards)
+              #t)
+
 (test-results)
